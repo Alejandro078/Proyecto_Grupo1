@@ -25,4 +25,4 @@ a la rama principal mediante push y merge.
 
 Contribución de Nicolas Arteaga
 -------------------------
-Aprendí a crear una rama de trabajo y registrar cambios con Git.
+Aprendí a crear una rama de trabajo y registrar cambios git.
