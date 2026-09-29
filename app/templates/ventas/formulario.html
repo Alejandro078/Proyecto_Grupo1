@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block titulo %}Nueva venta{% endblock %}
+{% block contenido %}
+<h3 class="fw-bold text-navy mb-3">Registrar nueva venta</h3>
+
+<form method="post" id="form-venta">
+    <div class="row g-3">
+        <div class="col-md-8">
+            <div class="card p-3 mb-3">
+                <h5 class="fw-bold mb-3">Productos</h5>
+                <div id="lineas-detalle"></div>
+                <button type="button" id="btn-agregar-linea" class="btn btn-outline-secondary btn-sm mt-2">
+                    <i class="bi bi-plus-lg me-1"></i>Agregar producto
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 mb-3">
+                <h5 class="fw-bold mb-3">Datos de la venta</h5>
+                <div class="mb-3">
+                    <label class="form-label">Cliente</label>
+                    <select class="form-select" name="cliente_id">
+                        <option value="">Consumidor final</option>
+                        {% for c in clientes %}
+                            <option value="{{ c.id }}">{{ c.nombre }} — {{ c.documento }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Vendedor</label>
+                    <select class="form-select" name="empleado_id">
+                        <option value="">Sin especificar</option>
+                        {% for e in empleados %}
+                            <option value="{{ e.id }}">{{ e.nombre }} ({{ e.cargo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Descuento</label>
+                    <select class="form-select" name="tipo_descuento" id="tipo_descuento">
+                        <option value="ninguno">Sin descuento</option>
+                        <option value="cliente_frecuente">Cliente frecuente (escalonado)</option>
+                        <option value="porcentaje">Porcentaje fijo</option>
+                    </select>
+                </div>
+                <div class="mb-3 d-none" id="campo-porcentaje">
+                    <label class="form-label">Porcentaje (%)</label>
+                    <input type="number" min="0" max="100" step="0.1" class="form-control"
+                           name="porcentaje_descuento" value="10">
+                </div>
+                <button class="btn btn-navy w-100" type="submit"><i class="bi bi-check-lg me-1"></i>Registrar venta</button>
+                <a href="{{ url_for('ventas.listar') }}" class="btn btn-outline-secondary w-100 mt-2">Cancelar</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<template id="plantilla-linea">
+    <div class="row g-2 align-items-center detalle-fila">
+        <div class="col-7">
+            <select class="form-select" name="producto_id[]" required>
+                <option value="">Selecciona un producto...</option>
+                {% for p in productos %}
+                    <option value="{{ p.id }}" data-stock="{{ p.stock }}" data-precio="{{ p.precio }}">
+                        {{ p.nombre }} — ${{ "%.0f"|format(p.precio) }} (stock: {{ p.stock }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-3">
+            <input type="number" min="1" class="form-control" name="cantidad[]" placeholder="Cantidad" required>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-outline-danger btn-sm btn-quitar-linea"><i class="bi bi-x-lg"></i></button>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const contenedor = document.getElementById('lineas-detalle');
+    const plantilla = document.getElementById('plantilla-linea');
+
+    function agregarLinea() {
+        const nodo = plantilla.content.cloneNode(true);
+        nodo.querySelector('.btn-quitar-linea').addEventListener('click', (e) => {
+            e.target.closest('.detalle-fila').remove();
+        });
+        contenedor.appendChild(nodo);
+    }
+
+    document.getElementById('btn-agregar-linea').addEventListener('click', agregarLinea);
+    agregarLinea(); // primera línea visible al cargar
+
+    const selectDescuento = document.getElementById('tipo_descuento');
+    const campoPorcentaje = document.getElementById('campo-porcentaje');
+    selectDescuento.addEventListener('change', () => {
+        campoPorcentaje.classList.toggle('d-none', selectDescuento.value !== 'porcentaje');
+    });
+</script>
+{% endblock %}
