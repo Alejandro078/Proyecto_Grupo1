@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block titulo %}Productos{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold text-navy mb-0">Productos</h3>
+    <a href="{{ url_for('productos.nuevo') }}" class="btn btn-navy">
+        <i class="bi bi-plus-lg me-1"></i>Nuevo producto
+    </a>
+</div>
+
+<form class="row g-2 mb-3" method="get">
+    <div class="col-md-5">
+        <input type="text" class="form-control" name="q" placeholder="Buscar por nombre..." value="{{ busqueda }}">
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" name="categoria">
+            <option value="">Todas las categorías</option>
+            {% for cat in categorias %}
+                <option value="{{ cat }}" {% if cat == categoria_actual %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button class="btn btn-outline-secondary w-100" type="submit"><i class="bi bi-search me-1"></i>Filtrar</button>
+    </div>
+</form>
+
+<div class="card p-3">
+    <table class="table align-middle mb-0">
+        <thead>
+        <tr>
+            <th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for p in productos %}
+            <tr>
+                <td>
+                    <div class="fw-semibold">{{ p.nombre }}</div>
+                    <div class="text-muted small">{{ p.descripcion or "" }}</div>
+                </td>
+                <td>{{ p.categoria or "—" }}</td>
+                <td>${{ "%.0f"|format(p.precio) }}</td>
+                <td>
+                    <span class="badge {{ 'badge-stock-bajo' if p.stock_bajo else 'badge-stock-ok' }}">
+                        {{ p.stock }}
+                    </span>
+                </td>
+                <td class="text-end">
+                    <a href="{{ url_for('productos.editar', producto_id=p.id) }}"
+                       class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                    <form method="post" action="{{ url_for('productos.eliminar', producto_id=p.id) }}"
+                          class="d-inline" onsubmit="return confirm('¿Eliminar este producto?');">
+                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-4">No hay productos para mostrar.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
